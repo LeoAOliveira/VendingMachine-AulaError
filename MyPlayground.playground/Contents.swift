@@ -19,6 +19,7 @@ enum VendingMachineError: Error {
     case productUnavailable
     case insufficientFund
     case productStuck
+    case notThreeColor
 }
 
 extension VendingMachineError: LocalizedError {
@@ -32,6 +33,8 @@ extension VendingMachineError: LocalizedError {
             return "Produto preso na máquina!"
         case .insufficientFund:
             return "Você não possui dinheiro suficiente"
+        case .notThreeColor:
+            return "Você não é São Paulino, então não pode"
         }
     }
 }
@@ -45,7 +48,7 @@ class VendingMachine {
         self.money = 0
     }
     
-    func getProduct(named name: String, with money: Double) throws {
+    func getProduct(named name: String, with money: Double, clientSupports team: String) throws {
         
         //TODO: receber o dinheiro e salvar em uma variável
         
@@ -80,6 +83,12 @@ class VendingMachine {
         if Int.random(in: 0...100) < 10 {
             throw VendingMachineError.productStuck
         }
+        
+        // EXTRA
+        
+        if team.lowercased() != "são paulo" && team.lowercased() != "spfc" {
+            throw VendingMachineError.notThreeColor
+        }
     }
     
     func getTroco() -> Double {
@@ -97,8 +106,24 @@ let vendingMachine = VendingMachine(products: [
 ])
 
 do {
-    try vendingMachine.getProduct(named: "Cookies", with: 3.0)
-    print("Funcionou")
+    try vendingMachine.getProduct(named: "Cookies", with: 15.0, clientSupports: "São Paulo")
+    print("Funcionou tricolor!")
 } catch {
     print(error.localizedDescription)
 }
+
+do {
+    try vendingMachine.getProduct(named: "Chips", with: 4.0, clientSupports: "SPFC")
+    print("Funcionou tricolor!")
+} catch {
+    print(error.localizedDescription)
+}
+
+do {
+    try vendingMachine.getProduct(named: "Chocolate", with: 10.0, clientSupports: "Cruzeiro")
+    print("Funcionou tricolor!")
+} catch {
+    print(error.localizedDescription)
+}
+
+
